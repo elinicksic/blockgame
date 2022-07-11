@@ -1,0 +1,5 @@
+name: player
+bounding_box:
+  length: 0.7
+  width: 0.7
+  height: 1.8

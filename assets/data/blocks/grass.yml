@@ -1,0 +1,8 @@
+name: grass
+texture:
+  top: grass_top
+  north: grass_side
+  east: grass_side
+  south: grass_side
+  west: grass_side
+  bottom: dirt

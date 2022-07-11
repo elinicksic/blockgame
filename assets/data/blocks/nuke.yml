@@ -1,0 +1,8 @@
+name: nuke
+texture:
+  top: nuke
+  north: nuke
+  east: nuke
+  south: nuke
+  west: nuke
+  bottom: nuke

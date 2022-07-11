@@ -1,0 +1,8 @@
+name: dirt
+texture:
+  top: dirt
+  north: dirt
+  east: dirt
+  south: dirt
+  west: dirt
+  bottom: dirt

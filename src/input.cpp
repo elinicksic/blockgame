@@ -10,7 +10,10 @@ namespace Input {
     
     void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key >= 0 && key < GLFW_KEY_LAST) {
-            keyPressedData[key] = action == GLFW_PRESS;
+            if (action == GLFW_PRESS)
+                keyPressedData[key] = true;
+            else if (action == GLFW_RELEASE)
+                keyPressedData[key] = false;
         }
     }
 

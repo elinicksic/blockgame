@@ -8,7 +8,7 @@ struct Camera {
     float pitch;
     float yaw;
 
-    float fov = 90.0f;
+    float fov = 70.0f;
 
     void update(uint32_t shaderId);
 };
