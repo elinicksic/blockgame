@@ -2,42 +2,92 @@
 
 World::World(ResourceManager *resourceManager) {
   this->resourceManager = resourceManager;
+
+  const siv::PerlinNoise::seed_type seed = 12345u;
+	this->perlin = siv::PerlinNoise { seed };
 }
 
 void World::loadChunk(int cx, int cy) {
   Chunk chunk(cx, cy, this, resourceManager);
-  chunk.fill("nuke");
   chunks.insert({std::make_tuple(cx, cy), chunk});
+  chunkGenerationQueue.push_back({cx, cy});
 }
 
-void World::unloadChunk(int cx, int cy) {
-  chunks.at({cx, cy}).unload();
-  chunks.erase({cx, cy});
+void World::generateChunk(int cx, int cy) {
+  try {
+    chunks.at({cx, cy}).generate(&perlin);
+    chunkUpdateQueue.push_back({cx - 1, cy});
+    chunkUpdateQueue.push_back({cx, cy - 1});
+    chunkUpdateQueue.push_back({cx + 1, cy});
+    chunkUpdateQueue.push_back({cx, cy + 1});
+    chunkUpdateQueue.push_back({cx, cy});
+  } catch (std::out_of_range) {}
+}
+
+void World::unloadChunk(std::tuple<int, int> chunk) {
+  chunks.at(chunk).unload();
+  chunks.erase(chunk);
 }
 
 void World::autoLoadChunks(int cx, int cy, int renderDistance) {
   // Check for chunks needing to be unloaded.
+
+  std::vector<std::tuple<int, int>> chunksToRemove;
   for (auto &i : chunks) {
     auto [x, y] = i.first;
     if (x < cx - renderDistance || x > cx + renderDistance || y < cy - renderDistance || y > cy + renderDistance) {
-      unloadChunk(x, y);
+      chunksToRemove.push_back({x, y});
     }
   }
 
+  for (auto &i : chunksToRemove) {
+    unloadChunk(i);
+  }
+
+  // for (auto &i : chunkLoadingQueue) {
+    // auto [x, y] = i;
+    // if (x < cx - renderDistance || x > cx + renderDistance || y < cy - renderDistance || y > cy + renderDistance) {
+      // chunkLoadingQueue.erase(std::remove(chunkLoadingQueue.begin(), chunkLoadingQueue.end(), i));
+    // }
+  // }
+  
+  // auto chunksToCancelLoad = std::remove_if(chunkGenerationQueue.begin(), chunkGenerationQueue.end(), 
+  //   [&cx, &cy, &renderDistance](auto chunk) { 
+  //     auto [x, y] = chunk;
+
+  //     return x < cx - renderDistance || x > cx + renderDistance || y < cy - renderDistance || y > cy + renderDistance;
+
+  //     return false;
+  //   }
+  // );
+
+  //chunkLoadingQueue.erase(chunksToCancelLoad);
+
   std::vector<std::tuple<int, int>> newChunks;
 
-  for (int x = -renderDistance; x < renderDistance; x++) {
-    for (int y = -renderDistance; y < renderDistance; y++) {
+  for (int x = -renderDistance + cx; x <= renderDistance + cx; x++) {
+    for (int y = -renderDistance + cy; y <= renderDistance + cy; y++) {
       if (chunks.find({x, y}) == chunks.end()) {
-        newChunks.push_back({x, y});
         loadChunk(x, y);
       }
     }
   }
+  
+  std::sort(chunkGenerationQueue.begin(), chunkGenerationQueue.end(), [&cx, &cy] (auto coords1, auto coords2) {
+    auto [x1, y1] = coords1; 
+    auto [x2, y2] = coords2; 
+    float distance1 = glm::distance(glm::vec2(cx, cy), glm::vec2(x1, y1));
+    float distance2 = glm::distance(glm::vec2(cx, cy), glm::vec2(x2, y2));
+    return distance1 > distance2;
+  });
 
-  for (auto &i : newChunks) {
-    chunks.at(i).update();
-  }
+  std::sort(chunkUpdateQueue.begin(), chunkUpdateQueue.end(), [&cx, &cy] (auto coords1, auto coords2) {
+    auto [x1, y1] = coords1; 
+    auto [x2, y2] = coords2; 
+    float distance1 = glm::distance(glm::vec2(cx, cy), glm::vec2(x1, y1));
+    float distance2 = glm::distance(glm::vec2(cx, cy), glm::vec2(x2, y2));
+    return distance1 < distance2;
+  });
 }
 
 void World::draw() {
@@ -121,7 +171,7 @@ bool World::isChunkLoaded(std::tuple<int, int> chunkCoords) {
   return chunks.find(chunkCoords) != chunks.end();
 }
 
-std::tuple<int, int> getChunkCoords(int x, int z) {
+std::tuple<int, int> World::getChunkCoords(int x, int z) {
   int cx = x / 16;
 	int cy = z / 16;
 
@@ -184,5 +234,19 @@ Chunk* World::getChunk(int cx, int cy) {
     return &chunks.at({cx, cy});
   } catch (std::out_of_range) {
     return nullptr;
+  }
+}
+
+void World::update() {
+  if (chunkUpdateQueue.size() > 0) {
+    try {
+      chunks.at(chunkUpdateQueue.front()).update();
+    } catch (std::out_of_range) {}
+    chunkUpdateQueue.pop_front();
+  }
+  if (chunkGenerationQueue.size() > 0) {
+    auto chunkToLoad = chunkGenerationQueue.back();
+    generateChunk(std::get<0>(chunkToLoad), std::get<1>(chunkToLoad));
+    chunkGenerationQueue.pop_back();
   }
 }

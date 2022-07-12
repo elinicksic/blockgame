@@ -6,6 +6,7 @@
 #include "texture.h"
 #include "resource_manager.h"
 #include "world.h"
+#include "perlin.h"
 
 class World;
 
@@ -19,14 +20,16 @@ class Chunk {
     int vboSize;
     ResourceManager *resourceManager;
     World *world;
+    bool hasGenerated = false;
   public:
     Chunk(int cx, int cy, World *world, ResourceManager *resourceManager);
     std::string getBlock(int x, int y, int z);
     std::vector<Vertex> genVertexArray();
-    void fill(std::string block);
+    void generate(siv::PerlinNoise* perlin);
     void draw();
     void update();
     void setBlock(int x, int y, int z, std::string id);
     void unload();
     int getUnmappedBlock(int x, int y, int z);
+    bool getHasGenerated();
 };

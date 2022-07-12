@@ -1,8 +1,0 @@
-name: debug
-texture:
-  top: grass_top
-  north: debug_north
-  east: debug_east
-  south: debug_south
-  west: debug_west
-  bottom: dirt

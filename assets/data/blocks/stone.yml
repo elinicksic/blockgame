@@ -1,0 +1,8 @@
+name: stone
+texture:
+  top: stone
+  north: stone
+  east: stone
+  south: stone
+  west: stone
+  bottom: stone

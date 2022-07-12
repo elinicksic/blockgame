@@ -10,7 +10,7 @@ Chunk::Chunk(int cx, int cy, World *world, ResourceManager *resourceManager) {
 }
 
 std::string Chunk::getBlock(int x, int y, int z) {
-  if (y > 255 || y < 0) {
+  if (y > 255 || y < 0 || !hasGenerated) {
     return "air";
   }
 
@@ -22,20 +22,23 @@ std::string Chunk::getBlock(int x, int y, int z) {
   return blockMap[block];
 }
 
-void Chunk::fill(std::string block) {
-  blockMap.empty();
-
+void Chunk::generate(siv::PerlinNoise* perlin) {
   for (int x = 0; x < 16; x++) {
-    for (int y = 0; y < 256; y++) {
-      for (int z = 0; z < 16; z++) {
-        if (rand() % 200 <= 198) {
-          setBlock(x, y, z, "grass");
+    for (int z = 0; z < 16; z++) {
+      int height = perlin->octave2D_01((x + (cx * 16)) * 0.004, (z + (cy * 16)) * 0.004, 6) * 100 + 155;
+      for (int y = 0; y < 256; y++) {
+        bool isCave = perlin->noise3D_01((x + (cx * 16)) * 0.06, y * 0.06, (z + (cy * 16)) * 0.06) > 0.70;
+
+        if (y <= height && !isCave) {
+          setBlock(x, y, z, y == height ? "grass" : y > height - 6 ? "dirt" : "stone");
         } else {
-          setBlock(x, y, z, block);
+          setBlock(x, y, z, "air");
         }
       }
     }
   }
+
+  hasGenerated = true;
 }
 
 std::vector<Vertex> Chunk::genVertexArray() {
@@ -43,8 +46,6 @@ std::vector<Vertex> Chunk::genVertexArray() {
   Chunk* eastChunk = world->getChunk(cx, cy + 1);
   Chunk* southChunk = world->getChunk(cx + 1, cy);
   Chunk* westChunk = world->getChunk(cx, cy - 1);
-
-  std::cout << (northChunk == NULL) << std::endl;
 
   std::vector<Vertex> vertexVector;
   for (int x = 0; x < 16; x++) {
@@ -151,14 +152,14 @@ void Chunk::draw() {
 }
 
 void Chunk::update() {
-  std::cout << "Updating chunk " << cx << " " << cy << std::endl;
+  //std::cout << "Updating chunk " << cx << " " << cy << std::endl;
 
-  auto start = std::chrono::high_resolution_clock::now();
+  //auto start = std::chrono::high_resolution_clock::now();
   std::vector data = genVertexArray();
-  auto stop = std::chrono::high_resolution_clock::now();
+  //auto stop = std::chrono::high_resolution_clock::now();
 
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  std::cout << "Finished chunk " << cx << " " << cy << " in " << duration.count() << " microseconds" << std::endl;
+  //auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+  //std::cout << "Finished chunk " << cx << " " << cy << " in " << duration.count() << " microseconds" << std::endl;
 
   vboSize = data.size();
 
@@ -190,5 +191,9 @@ void Chunk::setBlock(int x, int y, int z, std::string block) {
 }
 
 int Chunk::getUnmappedBlock(int x, int y, int z) {
-  return blockData[x][z][y];
+  return hasGenerated ? blockData[x][z][y] : -1;
+}
+
+bool Chunk::getHasGenerated() {
+  return hasGenerated;
 }

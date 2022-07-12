@@ -73,8 +73,6 @@ int main() {
 	resourceManager = new ResourceManager("./assets");
 	world = new World(resourceManager);
 
-	world->autoLoadChunks(0, 0, 4);
-
 	uint32_t myVaoId;
 	glCreateVertexArrays(1, &myVaoId);
 	glBindVertexArray(myVaoId);
@@ -83,12 +81,15 @@ int main() {
 	bool isMouseDown = false;
 
 	camera.position = glm::vec3(0.0f, 256.0f, 0.0f);
+
+	std::tuple<int, int> prevChunk = {-1, 0};
 	
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		resourceManager->getChunkShader()->bind();
+		world->update();
 		world->draw();
 
 		float speed;
@@ -194,6 +195,12 @@ int main() {
 			isMouseDown = false;
 		}
 
+		auto newChunk = world->getChunkCoords(camera.position.x, camera.position.z);
+
+		if (prevChunk != newChunk) {
+			prevChunk = newChunk;
+			world->autoLoadChunks(std::get<0>(newChunk), std::get<1>(newChunk), 16);
+		}
 		
 		float xoffset = Input::mouseX - lastX;
 		float yoffset = lastY - Input::mouseY; // reversed since y-coordinates range from bottom to top

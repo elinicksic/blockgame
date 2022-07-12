@@ -1,4 +1,4 @@
-path: susatlas.png
+path: atlas.png
 textures:
   - name: dirt
     x: 0
@@ -15,28 +15,8 @@ textures:
     y: 16
     width: 16
     height: 16
-  - name: nuke
-    x: 32
-    y: 0
-    width: 32
-    height: 32
-  - name: debug_north
+  - name: stone
     x: 16
     y: 16
-    width: 16
-    height: 16
-  - name: debug_east
-    x: 32
-    y: 0
-    width: 16
-    height: 16
-  - name: debug_south
-    x: 32
-    y: 16
-    width: 16
-    height: 16
-  - name: debug_west
-    x: 48
-    y: 0
     width: 16
     height: 16
