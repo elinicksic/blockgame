@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "rendering/shader.h"
 
 void Shader::compile(std::string fragSource, std::string vertSource) {
   // Compile Vertex Shader

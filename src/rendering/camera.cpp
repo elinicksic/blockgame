@@ -1,9 +1,9 @@
-#include "camera.h"
+#include "rendering/camera.h"
 void Camera::update(uint32_t shaderId) {
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
 
-    glm::mat4 projection = glm::perspective(glm::radians(fov), (GLfloat)viewport[2] / (GLfloat)viewport[3], 0.1f, 1000.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(fov), (GLfloat)viewport[2] / (GLfloat)viewport[3], 0.1f, 100000.0f);
 
 	glUniformMatrix4fv(
 		glGetUniformLocation(shaderId, "uProjection"),
@@ -12,7 +12,7 @@ void Camera::update(uint32_t shaderId) {
 		glm::value_ptr(projection)
 	);
 
-	float pitchLimit = 89.9f;
+	float pitchLimit = 89.99f;
 
 	if(pitch > pitchLimit)
 		pitch =  pitchLimit;

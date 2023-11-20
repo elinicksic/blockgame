@@ -1,4 +1,4 @@
-#include "chunk.h"
+#include "world/chunk.h"
 
 Chunk::Chunk(int cx, int cy, World *world, ResourceManager *resourceManager) {
   this -> cx = cx;
@@ -25,12 +25,16 @@ std::string Chunk::getBlock(int x, int y, int z) {
 void Chunk::generate(siv::PerlinNoise* perlin) {
   for (int x = 0; x < 16; x++) {
     for (int z = 0; z < 16; z++) {
-      int height = perlin->octave2D_01((x + (cx * 16)) * 0.004, (z + (cy * 16)) * 0.004, 6) * 100 + 155;
+      int height = perlin->octave2D_01((x + (cx * 16)) * 0.004, (z + (cy * 16)) * 0.004, 6) * 160;
       for (int y = 0; y < 256; y++) {
         bool isCave = perlin->noise3D_01((x + (cx * 16)) * 0.06, y * 0.06, (z + (cy * 16)) * 0.06) > 0.70;
 
-        if (y <= height && !isCave) {
+        if (y == 0) {
+          setBlock(x, y, z, "bedrock");
+        } else if (y <= height && !isCave) {
           setBlock(x, y, z, y == height ? "grass" : y > height - 6 ? "dirt" : "stone");
+        } else if (y < 60) {
+          setBlock(x, y, z, "water");
         } else {
           setBlock(x, y, z, "air");
         }
@@ -130,7 +134,7 @@ void Chunk::draw() {
 	// Texture Coords Attribute
 	glVertexAttribPointer (
 		1, 
-		2, 
+		3, 
 		GL_FLOAT, 
 		GL_FALSE, 
 		sizeof(Vertex), 
@@ -147,6 +151,8 @@ void Chunk::draw() {
 		(void*)offsetof(Vertex, lighting)
 	);
 	glEnableVertexAttribArray(2);
+
+  glEnable(GL_DEPTH_TEST);
 
   glDrawArrays(GL_TRIANGLES, 0, vboSize);
 }
@@ -165,6 +171,8 @@ void Chunk::update() {
 
   glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glBufferData(GL_ARRAY_BUFFER, vboSize * sizeof(Vertex), data.data(), GL_STATIC_DRAW);
+
+  hasUpdatedOnce = true;
 }
 
 void Chunk::unload() {
@@ -196,4 +204,8 @@ int Chunk::getUnmappedBlock(int x, int y, int z) {
 
 bool Chunk::getHasGenerated() {
   return hasGenerated;
+}
+
+bool Chunk::getHasUpdatedOnce() {
+  return hasUpdatedOnce;
 }

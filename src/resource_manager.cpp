@@ -4,53 +4,42 @@ BlockData ResourceManager::getBlock(std::string name) {
   return blocks.at(name);
 }
 
-TextureCoords ResourceManager::getSprite(std::string name) {
-  return sprites.at(name);
+int ResourceManager::getTextureDepth(std::string name) {
+  return textures.at(name);
 }
 
 ResourceManager::ResourceManager(std::string assetsPath) {
   this -> assetsPath = assetsPath;
 
   loadShaders();
-  loadSprites();
+  loadTextures();
   loadBlocks();
+  loadEntities();
 }
 
 void ResourceManager::loadBlocks() {
   for (const auto & entry : std::filesystem::directory_iterator(assetsPath / "data" / "blocks")) {
-    std::cout << entry.path() << std::endl;
     BlockData block(entry.path(), this);
     blocks.insert({block.name, block});
   }
 }
 
-void ResourceManager::loadSprites() {
-  YAML::Node spriteYaml = YAML::LoadFile(assetsPath / "texture" / "sprites.yaml");
+void ResourceManager::loadTextures() {
+  std::vector<std::string> texturePaths;
 
-  std::string atlasPath = spriteYaml["path"].as<std::string>();
+  for (const auto &entry : std::filesystem::directory_iterator(assetsPath / "texture" / "blocks")) {
+    if (entry.path().extension() != ".png") continue;
 
-  atlas.load(assetsPath / "texture" / atlasPath);
-
-  YAML::Node texturesNode = spriteYaml["textures"];
-
-  for(unsigned int i = 0; i < texturesNode.size(); i++) {
-    YAML::Node node = texturesNode[i];
-    std::string name = node["name"].as<std::string>();
-
-    TextureCoords coords = {
-      (float) node["x"].as<int>() / atlas.getWidth(),
-      (float) (atlas.getHeight() - node["y"].as<int>()) / atlas.getHeight(),
-      (float) node["width"].as<int>() / atlas.getWidth(),
-      (float) node["height"].as<int>() / atlas.getHeight()
-    };
-
-    sprites.insert({name, coords});
+    textures.insert({entry.path().stem(), texturePaths.size()});
+    texturePaths.push_back(entry.path());
   }
+
+  arrayTexture = new ArrayTexture(texturePaths);
 }
 
 void ResourceManager::loadShaders() {
   chunkShader = loadShader("chunk");
-  //hudShader = loadShader("hud");
+  hudShader = loadShader("hud");
 }
 
 Shader ResourceManager::loadShader(std::string name) {
@@ -91,4 +80,22 @@ Shader* ResourceManager::getChunkShader() {
 
 Shader* ResourceManager::getHudShader() {
   return &hudShader;
+}
+
+void ResourceManager::bindTexture() {
+  arrayTexture->bind(chunkShader.programId);
+}
+
+void ResourceManager::loadEntities() {
+  for (const auto &entry : std::filesystem::directory_iterator(assetsPath / "data" / "entities")) {
+    EntityType* entity = new EntityType();
+
+    entity->load(entry.path());
+
+    entities.insert({entity->name, entity});
+  }
+}
+
+EntityType* ResourceManager::getEntityType(std::string name) {
+  return entities.at(name);
 }

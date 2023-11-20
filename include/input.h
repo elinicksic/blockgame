@@ -1,3 +1,5 @@
+#pragma once
+
 #include "core.h"
 
 namespace Input {
@@ -12,7 +14,13 @@ namespace Input {
     void mouseCallback(GLFWwindow* window, double xpos, double ypos);
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    void joystick_callback(int jid, int event);
 
     bool isKeyDown(int key);
     bool isMouseButtonDown(int mouseButton);
+
+    void updateJoysticks();
+    glm::vec2 getTranslationAxis();
+
+    bool isKeyOrButton(int key, int button);
 }

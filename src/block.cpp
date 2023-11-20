@@ -13,27 +13,22 @@ BlockData::BlockData(std::string path, ResourceManager *resourceManager) {
 
   YAML::Node textureNode = blockInfo["texture"];
 
-  texCoords[TOP] = resourceManager->getSprite(textureNode["top"].as<std::string>());
-  texCoords[NORTH] = resourceManager->getSprite(textureNode["north"].as<std::string>());
-  texCoords[EAST] = resourceManager->getSprite(textureNode["east"].as<std::string>());
-  texCoords[SOUTH] = resourceManager->getSprite(textureNode["south"].as<std::string>());
-  texCoords[WEST] = resourceManager->getSprite(textureNode["west"].as<std::string>());
-  texCoords[BOTTOM] = resourceManager->getSprite(textureNode["bottom"].as<std::string>());
+  texDepth[TOP] = resourceManager->getTextureDepth(textureNode["top"].as<std::string>());
+  texDepth[NORTH] = resourceManager->getTextureDepth(textureNode["north"].as<std::string>());
+  texDepth[EAST] = resourceManager->getTextureDepth(textureNode["east"].as<std::string>());
+  texDepth[SOUTH] = resourceManager->getTextureDepth(textureNode["south"].as<std::string>());
+  texDepth[WEST] = resourceManager->getTextureDepth(textureNode["west"].as<std::string>());
+  texDepth[BOTTOM] = resourceManager->getTextureDepth(textureNode["bottom"].as<std::string>());
 }
 
 Vertex* BlockData::getVerticies(int x, int y, int z, int face, Vertex* vertexArray) {
-  TextureCoords textureCoords = texCoords[face];
+  int textureDepth = texDepth[face];
 
-  float tx = textureCoords.x;
-  float ty = textureCoords.y;
-  float tw = textureCoords.width;
-  float th = textureCoords.height;
-
-  glm::vec2 coordsArray[4] = {
-    glm::vec2(tx, ty - th),
-    glm::vec2(tx + tw, ty - th),
-    glm::vec2(tx, ty),
-    glm::vec2(tx + tw, ty),
+  glm::vec3 coordsArray[4] = {
+    glm::vec3(0.0f, 0.0f, textureDepth),
+    glm::vec3(1.0f, 0.0f, textureDepth),
+    glm::vec3(0.0f, 1.0f, textureDepth),
+    glm::vec3(1.0f, 1.0f, textureDepth),
   };
 
   float lighting = 0.0f;

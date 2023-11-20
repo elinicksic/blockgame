@@ -1,0 +1,8 @@
+name: bedrock
+texture:
+  top: bedrock
+  north: bedrock
+  east: bedrock
+  south: bedrock
+  west: bedrock
+  bottom: bedrock

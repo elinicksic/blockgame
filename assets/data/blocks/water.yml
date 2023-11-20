@@ -1,0 +1,8 @@
+name: water
+texture:
+  top: water
+  north: water
+  east: water
+  south: water
+  west: water
+  bottom: water

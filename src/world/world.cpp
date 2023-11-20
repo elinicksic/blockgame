@@ -1,4 +1,4 @@
-#include "world.h"
+#include "world/world.h"
 
 World::World(ResourceManager *resourceManager) {
   this->resourceManager = resourceManager;
@@ -16,10 +16,22 @@ void World::loadChunk(int cx, int cy) {
 void World::generateChunk(int cx, int cy) {
   try {
     chunks.at({cx, cy}).generate(&perlin);
-    chunkUpdateQueue.push_back({cx - 1, cy});
-    chunkUpdateQueue.push_back({cx, cy - 1});
-    chunkUpdateQueue.push_back({cx + 1, cy});
-    chunkUpdateQueue.push_back({cx, cy + 1});
+    try {
+      if (chunks.at({cx - 1, cy}).getHasUpdatedOnce())
+        chunkUpdateQueue.push_back({cx - 1, cy});
+    } catch (std::out_of_range) {}
+    try {
+      if (chunks.at({cx, cy - 1}).getHasUpdatedOnce())
+        chunkUpdateQueue.push_back({cx, cy - 1});
+    } catch (std::out_of_range) {}
+    try {
+      if (chunks.at({cx + 1, cy}).getHasUpdatedOnce())
+        chunkUpdateQueue.push_back({cx + 1, cy});
+    } catch (std::out_of_range) {}
+    try {
+      if (chunks.at({cx, cy + 1}).getHasUpdatedOnce())
+        chunkUpdateQueue.push_back({cx, cy + 1});
+    } catch (std::out_of_range) {}
     chunkUpdateQueue.push_back({cx, cy});
   } catch (std::out_of_range) {}
 }
@@ -43,25 +55,6 @@ void World::autoLoadChunks(int cx, int cy, int renderDistance) {
   for (auto &i : chunksToRemove) {
     unloadChunk(i);
   }
-
-  // for (auto &i : chunkLoadingQueue) {
-    // auto [x, y] = i;
-    // if (x < cx - renderDistance || x > cx + renderDistance || y < cy - renderDistance || y > cy + renderDistance) {
-      // chunkLoadingQueue.erase(std::remove(chunkLoadingQueue.begin(), chunkLoadingQueue.end(), i));
-    // }
-  // }
-  
-  // auto chunksToCancelLoad = std::remove_if(chunkGenerationQueue.begin(), chunkGenerationQueue.end(), 
-  //   [&cx, &cy, &renderDistance](auto chunk) { 
-  //     auto [x, y] = chunk;
-
-  //     return x < cx - renderDistance || x > cx + renderDistance || y < cy - renderDistance || y > cy + renderDistance;
-
-  //     return false;
-  //   }
-  // );
-
-  //chunkLoadingQueue.erase(chunksToCancelLoad);
 
   std::vector<std::tuple<int, int>> newChunks;
 
@@ -91,6 +84,8 @@ void World::autoLoadChunks(int cx, int cy, int renderDistance) {
 }
 
 void World::draw() {
+  resourceManager->getChunkShader()->bind();
+
   for (auto &i : chunks) {
     i.second.draw();
   }
@@ -229,6 +224,10 @@ int World::getUnmappedBlock(int x, int y, int z) {
   }
 }
 
+bool World::isBlockAir(int x, int y, int z) {
+  return y > 255 || y < 0 || getUnmappedBlock(x, y, z) <= 0;
+}
+
 Chunk* World::getChunk(int cx, int cy) {
   try {
     return &chunks.at({cx, cy});
@@ -244,9 +243,28 @@ void World::update() {
     } catch (std::out_of_range) {}
     chunkUpdateQueue.pop_front();
   }
+
   if (chunkGenerationQueue.size() > 0) {
     auto chunkToLoad = chunkGenerationQueue.back();
     generateChunk(std::get<0>(chunkToLoad), std::get<1>(chunkToLoad));
     chunkGenerationQueue.pop_back();
   }
+
+  for (auto &entity : entities) {
+    entity -> update();
+  }
+}
+
+Entity* World::spawnEntity(std::string name, float x, float y, float z) {
+  EntityType* type = resourceManager->getEntityType(name);
+  std::cout << type->name << std::endl;
+  Entity* entity = new Entity(type, this, x, y, z);
+
+  entities.push_back(entity);
+
+  return entity;
+}
+
+void World::spawnEntity(Entity* entity) {
+  entities.push_back(entity);
 }

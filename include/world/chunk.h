@@ -3,9 +3,8 @@
 #include "core.h"
 #include <map>
 #include "block.h"
-#include "texture.h"
 #include "resource_manager.h"
-#include "world.h"
+#include "world/world.h"
 #include "perlin.h"
 
 class World;
@@ -21,6 +20,7 @@ class Chunk {
     ResourceManager *resourceManager;
     World *world;
     bool hasGenerated = false;
+    bool hasUpdatedOnce = false;
   public:
     Chunk(int cx, int cy, World *world, ResourceManager *resourceManager);
     std::string getBlock(int x, int y, int z);
@@ -32,4 +32,5 @@ class Chunk {
     void unload();
     int getUnmappedBlock(int x, int y, int z);
     bool getHasGenerated();
+    bool getHasUpdatedOnce();
 };
