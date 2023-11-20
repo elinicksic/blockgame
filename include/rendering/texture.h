@@ -1,10 +1,12 @@
 #pragma once
 
-#include "core.h"
-#include "stb_image.h"
+#include <yaml-cpp/yaml.h>
+
 #include <filesystem>
 #include <map>
-#include <yaml-cpp/yaml.h>
+
+#include "core.h"
+#include "stb_image.h"
 
 struct TextureCoords {
   float x;
@@ -14,14 +16,15 @@ struct TextureCoords {
 };
 
 class Texture {
-  private:
-    GLuint textureId;
-    int width, height;
-  public:
-    Texture(std::string path);
-    Texture();
-    void load(std::string path);
-    void bind(GLuint shaderId);
-    int getWidth();
-    int getHeight();
+ private:
+  GLuint textureId;
+  int width, height;
+
+ public:
+  Texture(std::string path);
+  Texture();
+  void load(std::string path);
+  void bind(GLuint shaderId);
+  int getWidth();
+  int getHeight();
 };

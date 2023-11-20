@@ -1,8 +1,9 @@
 #pragma once
 
+#include <yaml-cpp/yaml.h>
+
 #include "core.h"
 #include "resource_manager.h"
-#include <yaml-cpp/yaml.h>
 
 struct Vertex {
   glm::vec3 position;
@@ -13,11 +14,11 @@ struct Vertex {
 class ResourceManager;
 
 class BlockData {
-  public:
-    BlockData(std::string path, ResourceManager *texture);
-    
-    std::string name;
-    int texDepth[6];
+ public:
+  BlockData(std::string path, ResourceManager* texture);
 
-    Vertex* getVerticies(int x, int y, int z, int face, Vertex* vertexArray);
+  std::string name;
+  int texDepth[6];
+
+  Vertex* getVerticies(int x, int y, int z, int face, Vertex* vertexArray);
 };

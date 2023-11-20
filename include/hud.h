@@ -7,12 +7,13 @@ struct HUDVertex {
 };
 
 class HUD {
-  private: 
-    ResourceManager* resourceManager;
-    GLuint vbo;
-    GLuint vao;
-    int bufferSize;
-  public:
-    HUD(ResourceManager* resourceManager);
-    void render();
+ private:
+  ResourceManager* resourceManager;
+  GLuint vbo;
+  GLuint vao;
+  int bufferSize;
+
+ public:
+  HUD(ResourceManager* resourceManager);
+  void render();
 };

@@ -9,7 +9,7 @@ int ResourceManager::getTextureDepth(std::string name) {
 }
 
 ResourceManager::ResourceManager(std::string assetsPath) {
-  this -> assetsPath = assetsPath;
+  this->assetsPath = assetsPath;
 
   loadShaders();
   loadTextures();
@@ -18,7 +18,7 @@ ResourceManager::ResourceManager(std::string assetsPath) {
 }
 
 void ResourceManager::loadBlocks() {
-  for (const auto & entry : std::filesystem::directory_iterator(assetsPath / "data" / "blocks")) {
+  for (const auto& entry : std::filesystem::directory_iterator(assetsPath / "data" / "blocks")) {
     BlockData block(entry.path(), this);
     blocks.insert({block.name, block});
   }
@@ -27,7 +27,7 @@ void ResourceManager::loadBlocks() {
 void ResourceManager::loadTextures() {
   std::vector<std::string> texturePaths;
 
-  for (const auto &entry : std::filesystem::directory_iterator(assetsPath / "texture" / "blocks")) {
+  for (const auto& entry : std::filesystem::directory_iterator(assetsPath / "texture" / "blocks")) {
     if (entry.path().extension() != ".png") continue;
 
     textures.insert({entry.path().stem(), texturePaths.size()});
@@ -54,7 +54,7 @@ Shader ResourceManager::loadShader(std::string name) {
     fragSrc = buffer.str();
     fragStream.close();
   }
-  
+
   std::ifstream vertStream;
   vertStream.open(assetsPath / "shaders" / name.append(".vert"));
   std::string vertSrc;
@@ -87,7 +87,7 @@ void ResourceManager::bindTexture() {
 }
 
 void ResourceManager::loadEntities() {
-  for (const auto &entry : std::filesystem::directory_iterator(assetsPath / "data" / "entities")) {
+  for (const auto& entry : std::filesystem::directory_iterator(assetsPath / "data" / "entities")) {
     EntityType* entity = new EntityType();
 
     entity->load(entry.path());

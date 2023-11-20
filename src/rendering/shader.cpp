@@ -9,12 +9,12 @@ void Shader::compile(std::string fragSource, std::string vertSource) {
 
   // Check for success compiling Vertex Shader
   int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-      glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-      printf("Failed to compile Vertex Shader: %s\n", infoLog);
-    }
+  char infoLog[512];
+  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    printf("Failed to compile Vertex Shader: %s\n", infoLog);
+  }
 
   // Compile Fragment Shader
   uint32_t fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);

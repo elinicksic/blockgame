@@ -1,6 +1,6 @@
 #include "hud.h"
 
-HUD::HUD(ResourceManager* resourceManager) { 
+HUD::HUD(ResourceManager* resourceManager) {
   this->resourceManager = resourceManager;
 
   glCreateVertexArrays(1, &vao);
@@ -15,19 +15,12 @@ HUD::HUD(ResourceManager* resourceManager) {
   glEnableVertexAttribArray(1);
 
   HUDVertex verticies[3] = {
-    {
-      glm::vec2(-1.0f, -1.0f),
-      glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)
-    },
-    {
-      glm::vec2(1.0f, -1.0f),
-      glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-    },
-    {
-      glm::vec2(0.0f, 1.0f),
-      glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)
-    }
-  };
+      {glm::vec2(-1.0f, -1.0f),
+       glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)},
+      {glm::vec2(1.0f, -1.0f),
+       glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)},
+      {glm::vec2(0.0f, 1.0f),
+       glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)}};
 
   bufferSize = sizeof(verticies);
 
@@ -35,13 +28,11 @@ HUD::HUD(ResourceManager* resourceManager) {
 
   glm::mat4 ortho = glm::ortho(-(800.0f / 2.0f), 800.0f / 2.0f, 600.0f / 2.0f, -(600.0f / 2.0f), -1000.0f, 1000.0f);
 
-
   glUniformMatrix4fv(
-		glGetUniformLocation(resourceManager->getHudShader()->programId, "uProjection"),
-		1,
-		GL_FALSE,
-		glm::value_ptr(ortho)
-  );
+      glGetUniformLocation(resourceManager->getHudShader()->programId, "uProjection"),
+      1,
+      GL_FALSE,
+      glm::value_ptr(ortho));
 }
 
 void HUD::render() {

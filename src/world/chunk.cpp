@@ -1,10 +1,10 @@
 #include "world/chunk.h"
 
-Chunk::Chunk(int cx, int cy, World *world, ResourceManager *resourceManager) {
-  this -> cx = cx;
-  this -> cy = cy;
-  this -> resourceManager = resourceManager;
-  this -> world = world;
+Chunk::Chunk(int cx, int cy, World* world, ResourceManager* resourceManager) {
+  this->cx = cx;
+  this->cy = cy;
+  this->resourceManager = resourceManager;
+  this->world = world;
 
   glGenBuffers(1, &bufferId);
 }
@@ -32,7 +32,8 @@ void Chunk::generate(siv::PerlinNoise* perlin) {
         if (y == 0) {
           setBlock(x, y, z, "bedrock");
         } else if (y <= height && !isCave) {
-          setBlock(x, y, z, y == height ? "grass" : y > height - 6 ? "dirt" : "stone");
+          setBlock(x, y, z, y == height ? "grass" : y > height - 6 ? "dirt"
+                                                                   : "stone");
         } else if (y < 60) {
           setBlock(x, y, z, "water");
         } else {
@@ -121,36 +122,33 @@ void Chunk::draw() {
   glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 
   // Position Vertex Attribute
-	glVertexAttribPointer (
-		0, 
-		3, 
-		GL_FLOAT, 
-		GL_FALSE, 
-		sizeof(Vertex), 
-		(void*)offsetof(Vertex, position)
-	);
-	glEnableVertexAttribArray(0);
-	
-	// Texture Coords Attribute
-	glVertexAttribPointer (
-		1, 
-		3, 
-		GL_FLOAT, 
-		GL_FALSE, 
-		sizeof(Vertex), 
-		(void*)offsetof(Vertex, textureCoords)
-	);
-	glEnableVertexAttribArray(1);
+  glVertexAttribPointer(
+      0,
+      3,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      (void*)offsetof(Vertex, position));
+  glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer (
-		2,
-		1,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(Vertex),
-		(void*)offsetof(Vertex, lighting)
-	);
-	glEnableVertexAttribArray(2);
+  // Texture Coords Attribute
+  glVertexAttribPointer(
+      1,
+      3,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      (void*)offsetof(Vertex, textureCoords));
+  glEnableVertexAttribArray(1);
+
+  glVertexAttribPointer(
+      2,
+      1,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      (void*)offsetof(Vertex, lighting));
+  glEnableVertexAttribArray(2);
 
   glEnable(GL_DEPTH_TEST);
 
@@ -158,19 +156,19 @@ void Chunk::draw() {
 }
 
 void Chunk::update() {
-  //std::cout << "Updating chunk " << cx << " " << cy << std::endl;
+  // std::cout << "Updating chunk " << cx << " " << cy << std::endl;
 
-  //auto start = std::chrono::high_resolution_clock::now();
+  // auto start = std::chrono::high_resolution_clock::now();
   std::vector data = genVertexArray();
-  //auto stop = std::chrono::high_resolution_clock::now();
+  // auto stop = std::chrono::high_resolution_clock::now();
 
-  //auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  //std::cout << "Finished chunk " << cx << " " << cy << " in " << duration.count() << " microseconds" << std::endl;
+  // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+  // std::cout << "Finished chunk " << cx << " " << cy << " in " << duration.count() << " microseconds" << std::endl;
 
   vboSize = data.size();
 
   glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-	glBufferData(GL_ARRAY_BUFFER, vboSize * sizeof(Vertex), data.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vboSize * sizeof(Vertex), data.data(), GL_STATIC_DRAW);
 
   hasUpdatedOnce = true;
 }
@@ -183,7 +181,7 @@ void Chunk::setBlock(int x, int y, int z, std::string block) {
   int id = 0;
 
   if (block != "air") {
-    for (auto &i : blockMap) {
+    for (auto& i : blockMap) {
       if (i.second == block) {
         id = i.first;
         break;

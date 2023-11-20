@@ -1,10 +1,10 @@
 #include "world/world.h"
 
-World::World(ResourceManager *resourceManager) {
+World::World(ResourceManager* resourceManager) {
   this->resourceManager = resourceManager;
 
   const siv::PerlinNoise::seed_type seed = 12345u;
-	this->perlin = siv::PerlinNoise { seed };
+  this->perlin = siv::PerlinNoise{seed};
 }
 
 void World::loadChunk(int cx, int cy) {
@@ -19,21 +19,26 @@ void World::generateChunk(int cx, int cy) {
     try {
       if (chunks.at({cx - 1, cy}).getHasUpdatedOnce())
         chunkUpdateQueue.push_back({cx - 1, cy});
-    } catch (std::out_of_range) {}
+    } catch (std::out_of_range) {
+    }
     try {
       if (chunks.at({cx, cy - 1}).getHasUpdatedOnce())
         chunkUpdateQueue.push_back({cx, cy - 1});
-    } catch (std::out_of_range) {}
+    } catch (std::out_of_range) {
+    }
     try {
       if (chunks.at({cx + 1, cy}).getHasUpdatedOnce())
         chunkUpdateQueue.push_back({cx + 1, cy});
-    } catch (std::out_of_range) {}
+    } catch (std::out_of_range) {
+    }
     try {
       if (chunks.at({cx, cy + 1}).getHasUpdatedOnce())
         chunkUpdateQueue.push_back({cx, cy + 1});
-    } catch (std::out_of_range) {}
+    } catch (std::out_of_range) {
+    }
     chunkUpdateQueue.push_back({cx, cy});
-  } catch (std::out_of_range) {}
+  } catch (std::out_of_range) {
+  }
 }
 
 void World::unloadChunk(std::tuple<int, int> chunk) {
@@ -45,14 +50,14 @@ void World::autoLoadChunks(int cx, int cy, int renderDistance) {
   // Check for chunks needing to be unloaded.
 
   std::vector<std::tuple<int, int>> chunksToRemove;
-  for (auto &i : chunks) {
+  for (auto& i : chunks) {
     auto [x, y] = i.first;
     if (x < cx - renderDistance || x > cx + renderDistance || y < cy - renderDistance || y > cy + renderDistance) {
       chunksToRemove.push_back({x, y});
     }
   }
 
-  for (auto &i : chunksToRemove) {
+  for (auto& i : chunksToRemove) {
     unloadChunk(i);
   }
 
@@ -65,18 +70,18 @@ void World::autoLoadChunks(int cx, int cy, int renderDistance) {
       }
     }
   }
-  
-  std::sort(chunkGenerationQueue.begin(), chunkGenerationQueue.end(), [&cx, &cy] (auto coords1, auto coords2) {
-    auto [x1, y1] = coords1; 
-    auto [x2, y2] = coords2; 
+
+  std::sort(chunkGenerationQueue.begin(), chunkGenerationQueue.end(), [&cx, &cy](auto coords1, auto coords2) {
+    auto [x1, y1] = coords1;
+    auto [x2, y2] = coords2;
     float distance1 = glm::distance(glm::vec2(cx, cy), glm::vec2(x1, y1));
     float distance2 = glm::distance(glm::vec2(cx, cy), glm::vec2(x2, y2));
     return distance1 > distance2;
   });
 
-  std::sort(chunkUpdateQueue.begin(), chunkUpdateQueue.end(), [&cx, &cy] (auto coords1, auto coords2) {
-    auto [x1, y1] = coords1; 
-    auto [x2, y2] = coords2; 
+  std::sort(chunkUpdateQueue.begin(), chunkUpdateQueue.end(), [&cx, &cy](auto coords1, auto coords2) {
+    auto [x1, y1] = coords1;
+    auto [x2, y2] = coords2;
     float distance1 = glm::distance(glm::vec2(cx, cy), glm::vec2(x1, y1));
     float distance2 = glm::distance(glm::vec2(cx, cy), glm::vec2(x2, y2));
     return distance1 < distance2;
@@ -86,14 +91,14 @@ void World::autoLoadChunks(int cx, int cy, int renderDistance) {
 void World::draw() {
   resourceManager->getChunkShader()->bind();
 
-  for (auto &i : chunks) {
+  for (auto& i : chunks) {
     i.second.draw();
   }
 }
 
 std::string World::getBlock(int x, int y, int z) {
   int cx = x / 16;
-	int cy = z / 16;
+  int cy = z / 16;
 
   int localX = glm::abs(x % 16);
   int localZ = glm::abs(z % 16);
@@ -114,15 +119,15 @@ std::string World::getBlock(int x, int y, int z) {
       cy++;
     }
   }
-  
-  if (chunks.find({cx, cy}) == chunks.end()) 
+
+  if (chunks.find({cx, cy}) == chunks.end())
     return "";
   return chunks.at({cx, cy}).getBlock(localX, y, localZ);
 }
 
 void World::setBlock(int x, int y, int z, std::string block) {
   int cx = x / 16;
-	int cy = z / 16;
+  int cy = z / 16;
 
   int localX = glm::abs(x % 16);
   int localZ = glm::abs(z % 16);
@@ -145,7 +150,7 @@ void World::setBlock(int x, int y, int z, std::string block) {
   }
 
   chunks.at(std::make_tuple(cx, cy)).setBlock(localX, y, localZ, block);
-  //std::cout << chunks.at(std::make_tuple(cx, cy)).getBlock(x % 16, y, z % 16) << std::endl;
+  // std::cout << chunks.at(std::make_tuple(cx, cy)).getBlock(x % 16, y, z % 16) << std::endl;
 
   chunks.at({cx, cy}).update();
   if (localX == 0)
@@ -168,7 +173,7 @@ bool World::isChunkLoaded(std::tuple<int, int> chunkCoords) {
 
 std::tuple<int, int> World::getChunkCoords(int x, int z) {
   int cx = x / 16;
-	int cy = z / 16;
+  int cy = z / 16;
 
   int localX = glm::abs(x % 16);
   int localZ = glm::abs(z % 16);
@@ -195,7 +200,7 @@ std::tuple<int, int> World::getChunkCoords(int x, int z) {
 
 int World::getUnmappedBlock(int x, int y, int z) {
   int cx = x / 16;
-	int cy = z / 16;
+  int cy = z / 16;
 
   int localX = glm::abs(x % 16);
   int localZ = glm::abs(z % 16);
@@ -240,7 +245,8 @@ void World::update() {
   if (chunkUpdateQueue.size() > 0) {
     try {
       chunks.at(chunkUpdateQueue.front()).update();
-    } catch (std::out_of_range) {}
+    } catch (std::out_of_range) {
+    }
     chunkUpdateQueue.pop_front();
   }
 
@@ -250,8 +256,8 @@ void World::update() {
     chunkGenerationQueue.pop_back();
   }
 
-  for (auto &entity : entities) {
-    entity -> update();
+  for (auto& entity : entities) {
+    entity->update();
   }
 }
 

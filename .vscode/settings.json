@@ -87,6 +87,7 @@
         "format": "cpp",
         "stacktrace": "cpp",
         "stdfloat": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "filesystem": "cpp"
     }
 }

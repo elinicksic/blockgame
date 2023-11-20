@@ -7,7 +7,7 @@
 #define WEST 4
 #define BOTTOM 5
 
-BlockData::BlockData(std::string path, ResourceManager *resourceManager) {
+BlockData::BlockData(std::string path, ResourceManager* resourceManager) {
   YAML::Node blockInfo = YAML::LoadFile(path);
   name = blockInfo["name"].as<std::string>();
 
@@ -25,10 +25,10 @@ Vertex* BlockData::getVerticies(int x, int y, int z, int face, Vertex* vertexArr
   int textureDepth = texDepth[face];
 
   glm::vec3 coordsArray[4] = {
-    glm::vec3(0.0f, 0.0f, textureDepth),
-    glm::vec3(1.0f, 0.0f, textureDepth),
-    glm::vec3(0.0f, 1.0f, textureDepth),
-    glm::vec3(1.0f, 1.0f, textureDepth),
+      glm::vec3(0.0f, 0.0f, textureDepth),
+      glm::vec3(1.0f, 0.0f, textureDepth),
+      glm::vec3(0.0f, 1.0f, textureDepth),
+      glm::vec3(1.0f, 1.0f, textureDepth),
   };
 
   float lighting = 0.0f;
