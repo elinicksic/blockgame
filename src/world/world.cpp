@@ -5,6 +5,28 @@ World::World(ResourceManager* resourceManager) {
 
   const siv::PerlinNoise::seed_type seed = 12345u;
   this->perlin = siv::PerlinNoise{seed};
+
+  chunkGenThread = std::thread(&World::generateChunksTask, this);
+}
+
+void World::generateChunksTask() {
+  std::cout << "Thread started\n";
+
+  while (true) {
+    std::unique_lock<std::mutex> lock(chunkGenMutex);
+    chunkGenCondition.wait(lock, [this] { return !chunkGenerationQueue.empty(); });
+
+    auto chunkToLoad = chunkGenerationQueue.back();
+    chunkGenerationQueue.pop_back();
+    lock.unlock();
+
+    generateChunk(std::get<0>(chunkToLoad), std::get<1>(chunkToLoad));
+  }
+}
+
+void World::queueGeneration(int cx, int cy) {
+  std::lock_guard<std::mutex> lock(chunkGenMutex);
+  chunkGenCondition.notify_one();
 }
 
 void World::loadChunk(int cx, int cy) {
@@ -49,6 +71,8 @@ void World::unloadChunk(std::tuple<int, int> chunk) {
 void World::autoLoadChunks(int cx, int cy, int renderDistance) {
   // Check for chunks needing to be unloaded.
 
+  std::lock_guard<std::mutex> lock(chunkGenMutex);
+
   std::vector<std::tuple<int, int>> chunksToRemove;
   for (auto& i : chunks) {
     auto [x, y] = i.first;
@@ -86,6 +110,8 @@ void World::autoLoadChunks(int cx, int cy, int renderDistance) {
     float distance2 = glm::distance(glm::vec2(cx, cy), glm::vec2(x2, y2));
     return distance1 < distance2;
   });
+
+  chunkGenCondition.notify_one();
 }
 
 void World::draw() {
@@ -248,12 +274,6 @@ void World::update() {
     } catch (std::out_of_range) {
     }
     chunkUpdateQueue.pop_front();
-  }
-
-  if (chunkGenerationQueue.size() > 0) {
-    auto chunkToLoad = chunkGenerationQueue.back();
-    generateChunk(std::get<0>(chunkToLoad), std::get<1>(chunkToLoad));
-    chunkGenerationQueue.pop_back();
   }
 
   for (auto& entity : entities) {

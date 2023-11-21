@@ -1,6 +1,9 @@
 #pragma once
+#include <condition_variable>
 #include <deque>
 #include <map>
+#include <mutex>
+#include <thread>
 
 #include "chunk.h"
 #include "core.h"
@@ -19,6 +22,12 @@ class World {
   std::deque<std::tuple<int, int>> chunkUpdateQueue;
   std::deque<std::tuple<int, int>> chunkGenerationQueue;
   std::vector<Entity*> entities;
+  std::thread chunkGenThread;
+  std::mutex chunkGenMutex;
+  std::condition_variable chunkGenCondition;
+  void generateChunksTask();
+  void queueGeneration(int cx, int cy);
+  void sortQueues(int cx, int cy);
 
  public:
   World(ResourceManager* resourceManager);
