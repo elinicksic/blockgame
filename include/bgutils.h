@@ -12,7 +12,7 @@ struct BlockFace {
   int x;
   int y;
   int z;
-  int face;
+  glm::vec3 normal;
   bool isAir;
 };
 

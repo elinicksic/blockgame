@@ -4,7 +4,7 @@ namespace Utils {
 BlockFace raycast(glm::vec3 pos, glm::vec3 direction, World* world, float dist) {
   glm::vec3 cur = glm::floor(pos);
   glm::vec3 xs = pos;
-  int face = 0;
+  glm::vec3 blockNormal(0.0f);
 
   while (true) {
     if (glm::distance(xs, pos) > dist) break;
@@ -15,7 +15,7 @@ BlockFace raycast(glm::vec3 pos, glm::vec3 direction, World* world, float dist) 
           (int)cur.x,
           (int)cur.y,
           (int)cur.z,
-          face};
+          blockNormal};
     }
 
     float minM = 1000.0f;
@@ -72,7 +72,7 @@ BlockFace raycast(glm::vec3 pos, glm::vec3 direction, World* world, float dist) 
         minNormal = normal;
       }
 
-      face = minFace;
+      blockNormal = minNormal;
     }
 
     cur += minNormal;
@@ -83,7 +83,7 @@ BlockFace raycast(glm::vec3 pos, glm::vec3 direction, World* world, float dist) 
       (int)cur.x,
       (int)cur.y,
       (int)cur.z,
-      face,
+      blockNormal,
       world->getUnmappedBlock(cur.x, cur.y, cur.z) == 0};
 }
 }  // namespace Utils

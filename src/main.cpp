@@ -77,7 +77,8 @@ int main() {
 }
 
 float lastX = 400, lastY = 300;
-bool isMouseDown = false;
+bool isLeftMouseDown = false;
+bool isRightMouseDown = false;
 int jumpCooldown = 0;
 
 std::tuple<int, int> prevChunk = {-1, 0};
@@ -131,17 +132,34 @@ void update() {
   camera.position = player->pos + glm::vec3(0.0f, 1.6f, 0.0f);
 
   if (Input::isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-    if (!isMouseDown) {
+    if (!isLeftMouseDown) {
       Utils::BlockFace blockface = Utils::raycast(camera.position, camera.front, world, 5.0f);
 
       if (!blockface.isAir) {
         world->setBlock(blockface.x, blockface.y, blockface.z, "air");
       }
 
-      isMouseDown = true;
+      isLeftMouseDown = true;
     }
   } else {
-    isMouseDown = false;
+    isLeftMouseDown = false;
+  }
+
+  if (Input::isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+    if (!isRightMouseDown) {
+      Utils::BlockFace blockface = Utils::raycast(camera.position, camera.front, world, 5.0f);
+
+      int x = blockface.x - blockface.normal.x;
+      int y = blockface.y - blockface.normal.y;
+      int z = blockface.z - blockface.normal.z;
+      if (!blockface.isAir && world->isBlockAir(x, y, z)) {
+        world->setBlock(x, y, z, "dirt");
+      }
+
+      isRightMouseDown = true;
+    }
+  } else {
+    isRightMouseDown = false;
   }
 
   auto newChunk = world->getChunkCoords(camera.position.x, camera.position.z);
