@@ -119,6 +119,8 @@ std::vector<Vertex> Chunk::genVertexArray() {
 }
 
 void Chunk::draw() {
+  if (!hasUpdatedOnce) return;
+
   glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 
   // Position Vertex Attribute
