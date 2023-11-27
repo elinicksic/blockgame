@@ -22,6 +22,7 @@ class Chunk {
   World *world;
   bool hasGenerated = false;
   bool hasUpdatedOnce = false;
+  int numUpdates = 0;
 
  public:
   Chunk(int cx, int cy, World *world, ResourceManager *resourceManager);

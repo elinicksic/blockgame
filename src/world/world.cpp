@@ -268,12 +268,24 @@ Chunk* World::getChunk(int cx, int cy) {
 }
 
 void World::update() {
-  if (chunkUpdateQueue.size() > 0) {
+  std::vector<Chunk*> chunksToUpdate;
+
+  int numUpdates = 0;
+
+  std::unique_lock<std::mutex> lock(chunkGenMutex);
+  while (!chunkUpdateQueue.empty() && numUpdates < 14) {
     try {
-      chunks.at(chunkUpdateQueue.front()).update();
+      Chunk* chunk = &chunks.at(chunkUpdateQueue.front());
+      chunksToUpdate.push_back(chunk);
     } catch (std::out_of_range) {
     }
     chunkUpdateQueue.pop_front();
+    numUpdates++;
+  }
+  lock.unlock();
+
+  for (Chunk* chunk : chunksToUpdate) {
+    chunk->update();
   }
 
   for (auto& entity : entities) {

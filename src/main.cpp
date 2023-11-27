@@ -39,7 +39,7 @@ int main() {
   glCreateVertexArrays(1, &myVaoId);
   glBindVertexArray(myVaoId);
 
-  player = world->spawnEntity("player", 0.0f, 155.0f, 0.0f);
+  player = world->spawnEntity("player", 0.0f, 65.0f, 0.0f);
 
   auto previous = std::chrono::system_clock::now();
 
@@ -62,7 +62,15 @@ int main() {
     handleInput();
 
     while (lag >= MS_PER_TICK) {
+      auto start = std::chrono::high_resolution_clock::now();
       update();
+      auto stop = std::chrono::high_resolution_clock::now();
+
+      auto tickDuration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+
+      if (tickDuration.count() > MS_PER_TICK) {
+        std::cout << "Tick took " << tickDuration.count() << "ms :(\n";
+      }
       lag -= MS_PER_TICK;
     }
 
@@ -109,7 +117,7 @@ void update() {
   float speed = 0.2;
 
   if (Input::isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
-    speed *= 1.5f;
+    speed *= 5.0f;
   }
 
   if (jumpCooldown > 0) jumpCooldown--;
